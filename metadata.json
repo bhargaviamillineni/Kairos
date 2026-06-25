@@ -1,0 +1,10 @@
+{
+  "name": "Kairos",
+  "description": "Kairos — Act at the right moment, every time. An AI-powered productivity companion that proactively helps users plan, prioritize, and complete tasks before deadlines are missed.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

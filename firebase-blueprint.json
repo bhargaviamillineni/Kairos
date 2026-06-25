@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "Task": {
+      "title": "Task",
+      "description": "A user-authored task with deadline, priority, effort estimate, subtasks, and AI-computed metrics.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "deadline": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+        "effort": { "type": "number", "description": "Estimated minutes to complete" },
+        "urgencyScore": { "type": "number" },
+        "subtasks": { "type": "array" },
+        "completed": { "type": "boolean" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "completedAt": { "type": "string" },
+        "calendarEventId": { "type": "string" },
+        "suggestedTime": { "type": "string" },
+        "reasoning": { "type": "string" }
+      },
+      "required": ["title", "deadline", "priority", "userId", "completed"]
+    },
+    "Goal": {
+      "title": "Weekly Goal",
+      "description": "Weekly goals set by the user to track habits.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "progress": { "type": "number" },
+        "target": { "type": "number" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "progress", "target", "userId"]
+    },
+    "Schedule": {
+      "title": "Daily Schedule",
+      "description": "Today's hourly plan generated and optimized by the AI.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "plan": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "date", "plan"]
+    }
+  },
+  "firestore": {
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "User's tasks collection"
+    },
+    "/goals/{goalId}": {
+      "schema": "Goal",
+      "description": "User's weekly goals and habits"
+    },
+    "/schedules/{scheduleId}": {
+      "schema": "Schedule",
+      "description": "Today's optimized schedule plan"
+    }
+  }
+}
