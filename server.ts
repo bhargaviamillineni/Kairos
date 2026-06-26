@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import cors from "cors";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { 
   parseVoiceTranscript, 
@@ -114,10 +115,22 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
+    const indexPath = path.join(distPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+        res.sendFile(indexPath);
+      });
+    } else {
+      // Decoupled Mode: Serves a clean health status when run as an API-only service (e.g. on Render)
+      app.get("/", (req, res) => {
+        res.json({
+          status: "online",
+          message: "Kairos AI Backend Service is running successfully in decoupled API mode.",
+          timestamp: new Date().toISOString()
+        });
+      });
+    }
   }
 
   app.listen(PORT, "0.0.0.0", () => {
