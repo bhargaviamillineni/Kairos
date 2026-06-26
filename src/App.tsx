@@ -843,7 +843,7 @@ export default function App() {
 
       {/* Footer Branding credits */}
       <footer className="py-6 text-center text-[10px] text-slate-600 border-t border-slate-900 mt-auto">
-        <p>Kairos — Act at the right moment, every time © 2026. Proactive coaching engine powered by Google Gemini 3.5 & Google Calendar.</p>
+        <p>Proactive coaching engine , Kairos — Act at the right moment, every time © 2026</p>
       </footer>
 
     </div>
