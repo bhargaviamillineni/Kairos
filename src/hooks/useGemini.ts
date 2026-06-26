@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 
+const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || "";
+
 export function useGemini() {
   const [analyzing, setAnalyzing] = useState(false);
   const [planning, setPlanning] = useState(false);
@@ -10,7 +12,7 @@ export function useGemini() {
   const parseVoiceNote = useCallback(async (transcript: string) => {
     setParsingVoice(true);
     try {
-      const res = await fetch("/api/gemini/parse-voice", {
+      const res = await fetch(`${API_BASE_URL}/api/gemini/parse-voice`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ transcript, currentTime: new Date().toISOString() })
@@ -30,7 +32,7 @@ export function useGemini() {
   const analyzeTask = useCallback(async (newTask: any, existingTasks: any[]) => {
     setAnalyzing(true);
     try {
-      const res = await fetch("/api/gemini/analyze-task", {
+      const res = await fetch(`${API_BASE_URL}/api/gemini/analyze-task`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -54,7 +56,7 @@ export function useGemini() {
   const optimizeSchedule = useCallback(async (tasks: any[], freeSlots: any[]) => {
     setPlanning(true);
     try {
-      const res = await fetch("/api/gemini/battle-plan", {
+      const res = await fetch(`${API_BASE_URL}/api/gemini/battle-plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -77,7 +79,7 @@ export function useGemini() {
   // Calls the server-side API to generate context-aware proactive reminders
   const getProactiveReminder = useCallback(async (taskName: string, timeRemaining: string, completionPercent: number) => {
     try {
-      const res = await fetch("/api/gemini/reminder", {
+      const res = await fetch(`${API_BASE_URL}/api/gemini/reminder`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskName, timeRemaining, completionPercent })
@@ -95,7 +97,7 @@ export function useGemini() {
   const getEndOfDaySummary = useCallback(async (completedTasks: any[]) => {
     setGeneratingSummary(true);
     try {
-      const res = await fetch("/api/gemini/summary", {
+      const res = await fetch(`${API_BASE_URL}/api/gemini/summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completedTasks })
