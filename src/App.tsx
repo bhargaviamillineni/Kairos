@@ -43,6 +43,8 @@ export default function App() {
   const [needsAuth, setNeedsAuth] = useState(true);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [sandboxMode, setSandboxMode] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [apiHealthStatus, setApiHealthStatus] = useState<"checking" | "healthy" | "unreachable">("checking");
 
   // Sandbox fallback states if user bypasses Google Sign-In to demo
   const [sandboxTasks, setSandboxTasks] = useState<Task[]>([]);
@@ -66,6 +68,7 @@ export default function App() {
   const { 
     events, 
     freeSlots, 
+    calendarError,
     loadCalendar, 
     createEvent 
   } = useCalendar();
@@ -123,6 +126,24 @@ export default function App() {
     );
     return () => unsubscribe();
   }, [loadCalendar, sandboxMode]);
+
+  // Check backend API connection health
+  useEffect(() => {
+    const checkApiHealth = async () => {
+      const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || "";
+      try {
+        const res = await fetch(`${baseUrl}/api/health`);
+        if (res.ok) {
+          setApiHealthStatus("healthy");
+        } else {
+          setApiHealthStatus("unreachable");
+        }
+      } catch (e) {
+        setApiHealthStatus("unreachable");
+      }
+    };
+    checkApiHealth();
+  }, []);
 
   // Proactive Auto-Replan Trigger:
   // Whenever any task is added or changed, silently re-optimize Today's Battle Plan schedule with AI!
@@ -316,6 +337,7 @@ export default function App() {
   // Google Sign-In action handler
   const handleLogin = async () => {
     setIsLoggingIn(true);
+    setLoginError(null);
     try {
       const result = await googleSignIn();
       if (result) {
@@ -326,8 +348,14 @@ export default function App() {
         // Load initial calendar integration
         await loadCalendar(result.accessToken);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login authorization flow failed:", err);
+      const errorMsg = err?.message || String(err);
+      if (errorMsg.includes("popup-closed-by-user") || errorMsg.includes("auth/popup-closed-by-user")) {
+        setLoginError("popup-closed-by-user");
+      } else {
+        setLoginError(errorMsg);
+      }
     } finally {
       setIsLoggingIn(false);
     }
@@ -551,6 +579,47 @@ export default function App() {
             >
               Explore AI Sandbox Mode (Instant Onboarding)
             </button>
+
+            {apiHealthStatus === "unreachable" && (
+              <div className="p-4 bg-amber-950/40 border border-amber-500/20 rounded-2xl text-left text-xs text-amber-200 flex flex-col gap-2 shadow-inner">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="font-bold">Backend API Connection Alert</span>
+                </div>
+                <div className="leading-relaxed space-y-1 text-slate-300 text-[11px]">
+                  <p>The client application cannot connect to the backend server. If you have deployed this project to Vercel/Render, please check that:</p>
+                  <ul className="list-disc list-inside space-y-0.5 text-slate-400 pl-1">
+                    <li>Your Vercel deployment has the Environment Variable <strong className="text-white">VITE_API_BASE_URL</strong> set to your exact Render service URL (e.g., <code className="text-teal-300 text-[10px]">https://your-backend.onrender.com</code>).</li>
+                    <li>Your Render backend has <strong className="text-white">FRONTEND_URL</strong> set to your Vercel URL.</li>
+                    <li>If Render is spun down (due to inactive free tier sleep), it may take 50 seconds to boot on the first visit.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {loginError && (
+              <div className="mt-2 p-4 bg-red-950/40 border border-red-500/20 rounded-2xl text-left text-xs text-red-200 flex flex-col gap-2 shadow-inner">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                  <span className="font-bold">Google Sign-In Issue</span>
+                </div>
+                {loginError === "popup-closed-by-user" ? (
+                  <div className="leading-relaxed space-y-2">
+                    <p>The sign-in popup was closed before authentication finished.</p>
+                    <div>
+                      <strong className="block text-teal-300">How to fix this:</strong>
+                      <span className="block mt-1">1. If running inside the AI Studio coding workspace, click the <strong className="text-white">Open in New Tab</strong> icon in the top right corner of the preview panel to run the app directly, then sign in.</span>
+                      <span className="block mt-1">2. Ensure you have added this domain to the <strong className="text-white">Authorized Domains</strong> list in your Firebase Console (Authentication &rarr; Settings &rarr; Authorized Domains).</span>
+                      <span className="block mt-1">3. Make sure popups are allowed in your browser, and third-party cookies are not blocked.</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="leading-relaxed font-mono text-[10px] bg-black/30 p-2 rounded-lg break-all">
+                    {loginError}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <p className="text-[11px] text-slate-500">
@@ -587,6 +656,41 @@ export default function App() {
               <span>Leave Board</span>
             </button>
           </header>
+
+          {/* Google Calendar scopes / permissions notice */}
+          {calendarError && (
+            <div className="bg-amber-500/10 border border-amber-500/30 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 text-sm text-amber-200">
+              <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 shrink-0">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <div>
+                  <span className="font-extrabold text-amber-400 block text-base">Google Calendar Sync Paused</span>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Your Google account was linked, but the necessary permissions to read/write calendar events were not granted.
+                  </p>
+                </div>
+                <div className="bg-black/30 p-3 rounded-xl space-y-2 text-xs border border-slate-800/50">
+                  <span className="font-bold text-teal-300 block">How to resolve this:</span>
+                  <ul className="list-decimal list-inside space-y-1 text-[11px] text-slate-300">
+                    <li>Click <strong className="text-white">Leave Board</strong> (top right) to sign out of your current session.</li>
+                    <li>Click <strong className="text-white">Link Google Calendar</strong> to open the Google Sign-In popup again.</li>
+                    <li>
+                      <strong className="text-amber-300">CRITICAL CHECKBOXES:</strong> When Google displays the permissions screen, you <strong className="text-amber-300">MUST manually check the checkboxes</strong> to grant permission for:
+                      <div className="pl-4 mt-1 text-slate-400 italic">
+                        &bull; "See, edit, share, and permanently delete all the calendars you can access using Google Calendar"<br/>
+                        &bull; "See and download all your Google Calendars"
+                      </div>
+                    </li>
+                    <li>If you do not check those boxes, Google Calendar sync, Today's Battle Plan, and proactive Coach nudges will remain inactive.</li>
+                  </ul>
+                </div>
+                <div className="text-[10px] text-slate-500 font-mono break-all leading-normal bg-black/10 p-2 rounded-lg">
+                  System Error: {calendarError}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Critical sentinel alarm notices */}
           {activeAlert && (

@@ -43,7 +43,7 @@ export async function fetchTodayEvents(accessToken: string): Promise<CalendarEve
     return data.items || [];
   } catch (error) {
     console.error("Failed to fetch Google Calendar events:", error);
-    return [];
+    throw error;
   }
 }
 

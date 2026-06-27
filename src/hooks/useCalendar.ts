@@ -10,17 +10,21 @@ export function useCalendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [freeSlots, setFreeSlots] = useState<{ start: string; end: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [calendarError, setCalendarError] = useState<string | null>(null);
 
   const loadCalendar = useCallback(async (accessToken: string) => {
     if (!accessToken) return;
     setLoading(true);
+    setCalendarError(null);
     try {
       const todayEvents = await fetchTodayEvents(accessToken);
       setEvents(todayEvents);
       const slots = calculateFreeSlots(todayEvents);
       setFreeSlots(slots);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load Google Calendar events in hook:", err);
+      const errMsg = err?.message || String(err);
+      setCalendarError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -55,6 +59,7 @@ export function useCalendar() {
     events,
     freeSlots,
     loading,
+    calendarError,
     loadCalendar,
     createEvent
   };
