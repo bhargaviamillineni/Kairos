@@ -1,13 +1,16 @@
 # ⏳ Kairos — Act at the right moment, every time
 
+![Kairos Banner](./assets/banner.png)
+
 <div align="center">
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](https://github.com/bhargaviamillineni/kairos)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](https://github.com/your-username/kairos)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Made with Gemini](https://img.shields.io/badge/Made%20with-Gemini%201.5%20Pro-blue?style=flat-square&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
 [![Firebase](https://img.shields.io/badge/Database-Firebase-orange?style=flat-square&logo=firebase)](https://firebase.google.com/)
 [![React](https://img.shields.io/badge/Frontend-React%2018-blue?style=flat-square&logo=react)](https://react.dev/)
 
+**The ultimate proactive AI-powered productivity companion built for the Google AI Studio Hackathon 2025.**
 
 </div>
 
@@ -68,44 +71,43 @@ Kairos behaves like an executive assistant. By analyzing your active calendar, t
 > Dictate or write tasks casually, and let Gemini do the structured heavy lifting.
 - **Dynamic Analysis**: Automatically calculates a 1-10 urgency score, creates a checklist of logical subtasks, and suggests optimal execution blocks.
 - **Fail-Safe Processing**: Includes custom client-side heuristics so that even in offline scenarios or model rate-limits, your intake loop is never broken.
-  <img width="944" height="437" alt="image" src="https://github.com/user-attachments/assets/22c8442d-bfae-4ecf-ae18-85fabb4ddbfe" />
-
+![Smart Intake Screenshot](./assets/screenshots/intake.png)
 
 ### 📅 Proactive AI Scheduler ("Today's Battle Plan")
 > A chronologically optimized schedule designed around peak energy and calendar availability.
 - **Time Boxing**: Blocks exact times for high-priority items and schedules necessary cognitive breaks in between.
 - **Interactive Checklist**: Tasks are tracked in real-time, allowing Kairos to replan on the fly as progress shifts.
+![Today's Battle Plan Screenshot](./assets/screenshots/battle_plan.png)
 
 ### 🔔 Context-Aware Intelligent Reminders
 > Personalized motivation that scales with task completion and deadline proximity.
 - **Dynamic Nudges**: Generates natural-sounding encouragement based on exactly how much of a task is finished and how much time remains.
 - **Proactive Interventions**: Warns you with highly descriptive alert items if two imminent tasks are overlapping.
+![Intelligent Reminders Screenshot](./assets/screenshots/reminders.png)
 
 ### ⚡ "What Should I Do RIGHT NOW?" Button
 > Instantly silences choice paralysis with a single, highly tailored action recommendation.
 - **Peak Focus**: Evaluates all pending items, active deadlines, and calendar slots to present you with your single most critical immediate task.
 - **Action-Oriented UI**: Helps you focus strictly on execution, showing only the current item with a clean countdown.
-  <img width="944" height="440" alt="image" src="https://github.com/user-attachments/assets/82774c4d-140b-4dab-93c5-af85c226b20a" />
-
+![Right Now Screenshot](./assets/screenshots/right_now.png)
 
 ### 🎙️ Voice-Enabled Task Entry
 > Capture tasks completely hands-free while maintaining perfect schema structure.
 - **Speech Parsing**: Simply click the microphone, speak your task naturally (e.g., *"draft report by 5pm tomorrow high priority"*), and watch Kairos build it.
 - **Automatic Entity Extraction**: Infers priority levels, dates, and durations from conversational speech.
-  <img width="944" height="437" alt="image" src="https://github.com/user-attachments/assets/643820ab-b8a2-4993-9ef2-11ec2ac49bd8" />
-
+![Voice Entry Screenshot](./assets/screenshots/voice.png)
 
 ### 📆 Google Calendar Integration
 > Unifies your productivity system with your real-world appointments.
 - **Free Slot Discovery**: Scans your true Google Calendar appointments to find realistic, non-conflicting windows for incoming tasks.
 - **Direct Event Creation**: Pushes scheduled tasks directly to your primary Google Calendar under a dedicated planning namespace.
+![Calendar Integration Screenshot](./assets/screenshots/calendar.png)
 
 ### 📊 Habit & Goal Tracker with Daily Summary
 > Refined reflection blocks designed to highlight wins and structure tomorrow.
 - **Daily Reflection**: Gemini analyzes your completed tasks from the current session to synthesize a supportive summary.
 - **Productivity Diagnostics**: Identifies clear focus wins and delivers personalized efficiency tips based on your work patterns.
-  <img width="943" height="436" alt="image" src="https://github.com/user-attachments/assets/88283811-bf98-4ab7-8bf8-93d215145a6b" />
-
+![Daily Summary Screenshot](./assets/screenshots/summary.png)
 
 ---
 
@@ -193,11 +195,6 @@ VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
-
-# Google Calendar Integration
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:3000/auth/callback
 ```
 
 ### Running Locally
@@ -210,6 +207,52 @@ npm run dev
 # Visit the application in your browser
 http://localhost:3000
 ```
+
+---
+
+## ☁️ Decoupled Cloud Deployment (Vercel + Render)
+
+To achieve maximum efficiency, cost control, and server response time, we have configured a fully decoupled deployment where the frontend runs on Vercel's Edge/Serverless static network, and the backend runs on Render's scalable Node runtime.
+
+### 📍 1. Deploy Backend to Render
+
+Render will host the Node.js Express proxy server which securely makes Gemini API calls.
+
+1. **Create Web Service**: In your [Render Dashboard](https://dashboard.render.com/), click **New +** > **Web Service**.
+2. **Connect Repository**: Connect your GitHub repository.
+3. **Configure Settings**:
+   - **Language**: `Node`
+   - **Branch**: `main`
+   - **Build Command**: `npm run build:backend` *(This compiles server.ts into dist/server.cjs without building the Vite client)*
+   - **Start Command**: `npm run start` *(Runs node dist/server.cjs)*
+4. **Configure Environment Variables**:
+   - `GEMINI_API_KEY`: Your Google AI Studio API Key.
+   - `PORT`: `10000` *(Render sets this automatically, but you can specify if needed)*
+   - `FRONTEND_URL`: Your Vercel frontend URL *(e.g., `https://your-app.vercel.app`)* to enable secure CORS.
+5. **Deploy**: Render will build the bundled backend file. Copy the deployed web service URL *(e.g., `https://kairos-backend.onrender.com`)*.
+
+---
+
+### 📍 2. Deploy Frontend to Vercel
+
+Vercel will build and serve the lightning-fast React application.
+
+1. **Import Project**: In your [Vercel Dashboard](https://vercel.com/dashboard), click **Add New** > **Project** and import your GitHub repository.
+2. **Configure Framework Preset**: Vercel should automatically detect **Vite**.
+3. **Configure Settings**:
+   - **Build Command**: `npm run build:frontend` *(This builds only the static React files via Vite)*
+   - **Output Directory**: `dist`
+4. **Configure Environment Variables**:
+   - `VITE_API_BASE_URL`: Paste your Render backend URL *(e.g., `https://kairos-backend.onrender.com`)*. No trailing slash.
+   - `VITE_FIREBASE_API_KEY`: *(Your Firebase Web configuration API key)*
+   - `VITE_FIREBASE_AUTH_DOMAIN`: *(Your Firebase Web configuration Auth domain)*
+   - `VITE_FIREBASE_PROJECT_ID`: *(Your Firebase Web configuration Project ID)*
+   - `VITE_FIREBASE_STORAGE_BUCKET`: *(Your Firebase Web configuration Storage bucket)*
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`: *(Your Firebase Web configuration Messaging sender ID)*
+   - `VITE_FIREBASE_APP_ID`: *(Your Firebase Web configuration App ID)*
+5. **Deploy**: Click **Deploy**. Vercel will build the frontend assets. Once complete, copy your Vercel URL and add it to Render's `FRONTEND_URL` environment variable to ensure seamless CORS handshake.
+
+---
 
 ---
 
@@ -244,6 +287,11 @@ http://localhost:3000
 
 ---
 
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
 <div align="center">
-  Kairos@2026
+  Built with ⏳ by Team [YOUR TEAM NAME] for the [HACKATHON NAME] Hackathon 2025.
 </div>
