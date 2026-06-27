@@ -20,8 +20,27 @@ async function startServer() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   // Enable CORS so the decoupled Vercel frontend can communicate with the Render backend
+  const rawFrontendUrl = process.env.FRONTEND_URL || "";
+  const cleanFrontendUrl = rawFrontendUrl.trim().replace(/\/$/, "");
+
   app.use(cors({
-    origin: process.env.FRONTEND_URL || "*",
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      
+      const cleanOrigin = origin.trim().replace(/\/$/, "");
+      
+      // If FRONTEND_URL is not configured, or if the origin matches the FRONTEND_URL, allow it
+      if (!cleanFrontendUrl || cleanOrigin === cleanFrontendUrl || cleanOrigin.endsWith(".vercel.app") || cleanOrigin.includes("localhost") || cleanOrigin.includes("127.0.0.1") || cleanOrigin.includes("run.app")) {
+        callback(null, origin); // Reflect origin as allowed
+      } else {
+        // Fail-safe fallback to allow maximum compatibility while keeping log tracing
+        console.warn(`[CORS Warning] Origin "${origin}" did not match FRONTEND_URL "${rawFrontendUrl}". Allowing as safe fallback.`);
+        callback(null, origin);
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
   }));

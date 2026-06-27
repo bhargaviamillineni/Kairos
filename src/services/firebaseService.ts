@@ -66,8 +66,13 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     }
     cachedAccessToken = credential.accessToken;
     return { user: result.user, accessToken: cachedAccessToken };
-  } catch (error) {
-    console.error("Firebase Google Sign-In Error:", error);
+  } catch (error: any) {
+    const errorMsg = error?.message || String(error);
+    if (errorMsg.includes("popup-closed-by-user") || errorMsg.includes("auth/popup-closed-by-user")) {
+      console.warn("Firebase Google Sign-In was cancelled by the user (popup closed).");
+    } else {
+      console.error("Firebase Google Sign-In Error:", error);
+    }
     throw error;
   } finally {
     isSigningIn = false;

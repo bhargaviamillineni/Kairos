@@ -1,5 +1,7 @@
 # ⏳ Kairos — Act at the right moment, every time
 
+![Kairos Banner](./assets/banner.png)
+
 <div align="center">
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](https://github.com/your-username/kairos)
@@ -69,43 +71,43 @@ Kairos behaves like an executive assistant. By analyzing your active calendar, t
 > Dictate or write tasks casually, and let Gemini do the structured heavy lifting.
 - **Dynamic Analysis**: Automatically calculates a 1-10 urgency score, creates a checklist of logical subtasks, and suggests optimal execution blocks.
 - **Fail-Safe Processing**: Includes custom client-side heuristics so that even in offline scenarios or model rate-limits, your intake loop is never broken.
-
+![Smart Intake Screenshot](./assets/screenshots/intake.png)
 
 ### 📅 Proactive AI Scheduler ("Today's Battle Plan")
 > A chronologically optimized schedule designed around peak energy and calendar availability.
 - **Time Boxing**: Blocks exact times for high-priority items and schedules necessary cognitive breaks in between.
 - **Interactive Checklist**: Tasks are tracked in real-time, allowing Kairos to replan on the fly as progress shifts.
-
+![Today's Battle Plan Screenshot](./assets/screenshots/battle_plan.png)
 
 ### 🔔 Context-Aware Intelligent Reminders
 > Personalized motivation that scales with task completion and deadline proximity.
 - **Dynamic Nudges**: Generates natural-sounding encouragement based on exactly how much of a task is finished and how much time remains.
 - **Proactive Interventions**: Warns you with highly descriptive alert items if two imminent tasks are overlapping.
-
+![Intelligent Reminders Screenshot](./assets/screenshots/reminders.png)
 
 ### ⚡ "What Should I Do RIGHT NOW?" Button
 > Instantly silences choice paralysis with a single, highly tailored action recommendation.
 - **Peak Focus**: Evaluates all pending items, active deadlines, and calendar slots to present you with your single most critical immediate task.
 - **Action-Oriented UI**: Helps you focus strictly on execution, showing only the current item with a clean countdown.
-
+![Right Now Screenshot](./assets/screenshots/right_now.png)
 
 ### 🎙️ Voice-Enabled Task Entry
 > Capture tasks completely hands-free while maintaining perfect schema structure.
 - **Speech Parsing**: Simply click the microphone, speak your task naturally (e.g., *"draft report by 5pm tomorrow high priority"*), and watch Kairos build it.
 - **Automatic Entity Extraction**: Infers priority levels, dates, and durations from conversational speech.
-
+![Voice Entry Screenshot](./assets/screenshots/voice.png)
 
 ### 📆 Google Calendar Integration
 > Unifies your productivity system with your real-world appointments.
 - **Free Slot Discovery**: Scans your true Google Calendar appointments to find realistic, non-conflicting windows for incoming tasks.
 - **Direct Event Creation**: Pushes scheduled tasks directly to your primary Google Calendar under a dedicated planning namespace.
-
+![Calendar Integration Screenshot](./assets/screenshots/calendar.png)
 
 ### 📊 Habit & Goal Tracker with Daily Summary
 > Refined reflection blocks designed to highlight wins and structure tomorrow.
 - **Daily Reflection**: Gemini analyzes your completed tasks from the current session to synthesize a supportive summary.
 - **Productivity Diagnostics**: Identifies clear focus wins and delivers personalized efficiency tips based on your work patterns.
-
+![Daily Summary Screenshot](./assets/screenshots/summary.png)
 
 ---
 
@@ -283,21 +285,13 @@ Vercel will build and serve the lightning-fast React application.
 │       └── calendarService.ts  # Google Calendar API communication mapping
 ```
 
+---
 
-<div align="center">
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-### ⏳ Kairos
-
-**Act at the right moment. Every time.**
-
-Built with ❤️
-*"Kairos — the ancient Greek word for the perfect, opportune moment to act."*
-*We built an AI to make sure you never miss yours.*
-
-`React` · `Gemini 1.5 Pro` · `Firebase` · `Google Calendar API`
-
-*If Kairos helped you, give it a ⭐ on GitHub!*
-
+<div align="center">
+  Built with ⏳ by Team [YOUR TEAM NAME] for the [HACKATHON NAME] Hackathon 2025.
 </div>

@@ -130,7 +130,8 @@ export default function App() {
   // Check backend API connection health
   useEffect(() => {
     const checkApiHealth = async () => {
-      const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || "";
+      const rawUrl = (import.meta as any).env?.VITE_API_BASE_URL || "";
+      const baseUrl = rawUrl.trim().replace(/\/$/, "");
       try {
         const res = await fetch(`${baseUrl}/api/health`);
         if (res.ok) {
@@ -143,6 +144,9 @@ export default function App() {
       }
     };
     checkApiHealth();
+    // Poll every 15 seconds so we automatically transition to healthy once Render wakes up from sleep
+    const interval = setInterval(checkApiHealth, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   // Proactive Auto-Replan Trigger:
@@ -349,11 +353,12 @@ export default function App() {
         await loadCalendar(result.accessToken);
       }
     } catch (err: any) {
-      console.error("Login authorization flow failed:", err);
       const errorMsg = err?.message || String(err);
       if (errorMsg.includes("popup-closed-by-user") || errorMsg.includes("auth/popup-closed-by-user")) {
+        console.warn("Login authorization flow: popup closed by user.");
         setLoginError("popup-closed-by-user");
       } else {
+        console.error("Login authorization flow failed:", err);
         setLoginError(errorMsg);
       }
     } finally {
@@ -639,9 +644,28 @@ export default function App() {
                 <Flame className="w-5 h-5 text-teal-400 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
-                  Kairos
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
+                    Kairos
+                  </h1>
+                  {/* API Connection Status Badge */}
+                  {apiHealthStatus === "healthy" ? (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      AI Online
+                    </span>
+                  ) : apiHealthStatus === "checking" ? (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                      Connecting...
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                      AI Offline
+                    </span>
+                  )}
+                </div>
                 <p className="text-[10px] text-slate-500 font-medium tracking-wide">
                   {sandboxMode ? "⚠️ sandbox coaching mode" : `👤 sync: ${user?.email}`}
                 </p>
@@ -687,6 +711,31 @@ export default function App() {
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono break-all leading-normal bg-black/10 p-2 rounded-lg">
                   System Error: {calendarError}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Backend API Connection offline notice */}
+          {apiHealthStatus === "unreachable" && (
+            <div className="bg-rose-500/10 border border-rose-500/30 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 text-sm text-rose-200">
+              <div className="p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <div>
+                  <span className="font-extrabold text-rose-400 block text-base">AI Backend Service Offline</span>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Your frontend client deployed on Vercel is currently unable to communicate with your backend API on Render.
+                  </p>
+                </div>
+                <div className="bg-black/30 p-3 rounded-xl space-y-2 text-xs border border-slate-800/50">
+                  <span className="font-bold text-teal-300 block">How to verify and resolve this:</span>
+                  <ul className="list-decimal list-inside space-y-1 text-[11px] text-slate-300">
+                    <li>Ensure you have configured the <strong className="text-white">VITE_API_BASE_URL</strong> environment variable in your Vercel Dashboard to your exact Render web service URL (e.g., <code className="text-teal-300 text-[10px]">https://your-backend.onrender.com</code>).</li>
+                    <li>Verify that your Render backend has the <strong className="text-white">GEMINI_API_KEY</strong> environment variable configured so the AI model can respond.</li>
+                    <li>If you just visited the app after some time, Render's free tier may be "sleeping" and taking up to 50 seconds to boot up. The app will auto-detect when it comes online (checked every 15 seconds).</li>
+                  </ul>
                 </div>
               </div>
             </div>
