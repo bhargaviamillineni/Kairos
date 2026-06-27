@@ -158,7 +158,7 @@ graph TD
 | **Auth** | Firebase Auth (Google Sign-In integration) |
 | **Calendar** | Google Calendar API v3 (OAuth 2.0 flow) |
 | **Voice** | Web Speech API (On-device Speech Recognition) |
-| **Hosting** | Firebase Hosting & Cloud Run Containers |
+| **Hosting** | Firebase Hosting using Vercel and Render |
 
 ---
 
@@ -176,7 +176,7 @@ Follow these step-by-step commands to clone and set up the project locally:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/kairos.git
+git clone https://github.com/bhargaviamillineni/kairos.git
 cd kairos
 
 # 2. Install dependencies
@@ -212,52 +212,6 @@ npm run dev
 # Visit the application in your browser
 http://localhost:3000
 ```
-
----
-
-## ☁️ Decoupled Cloud Deployment (Vercel + Render)
-
-To achieve maximum efficiency, cost control, and server response time, we have configured a fully decoupled deployment where the frontend runs on Vercel's Edge/Serverless static network, and the backend runs on Render's scalable Node runtime.
-
-### 📍 1. Deploy Backend to Render
-
-Render will host the Node.js Express proxy server which securely makes Gemini API calls.
-
-1. **Create Web Service**: In your [Render Dashboard](https://dashboard.render.com/), click **New +** > **Web Service**.
-2. **Connect Repository**: Connect your GitHub repository.
-3. **Configure Settings**:
-   - **Language**: `Node`
-   - **Branch**: `main`
-   - **Build Command**: `npm run build:backend` *(This compiles server.ts into dist/server.cjs without building the Vite client)*
-   - **Start Command**: `npm run start` *(Runs node dist/server.cjs)*
-4. **Configure Environment Variables**:
-   - `GEMINI_API_KEY`: Your Google AI Studio API Key.
-   - `PORT`: `10000` *(Render sets this automatically, but you can specify if needed)*
-   - `FRONTEND_URL`: Your Vercel frontend URL *(e.g., `https://your-app.vercel.app`)* to enable secure CORS.
-5. **Deploy**: Render will build the bundled backend file. Copy the deployed web service URL *(e.g., `https://kairos-backend.onrender.com`)*.
-
----
-
-### 📍 2. Deploy Frontend to Vercel
-
-Vercel will build and serve the lightning-fast React application.
-
-1. **Import Project**: In your [Vercel Dashboard](https://vercel.com/dashboard), click **Add New** > **Project** and import your GitHub repository.
-2. **Configure Framework Preset**: Vercel should automatically detect **Vite**.
-3. **Configure Settings**:
-   - **Build Command**: `npm run build:frontend` *(This builds only the static React files via Vite)*
-   - **Output Directory**: `dist`
-4. **Configure Environment Variables**:
-   - `VITE_API_BASE_URL`: Paste your Render backend URL *(e.g., `https://kairos-backend.onrender.com`)*. No trailing slash.
-   - `VITE_FIREBASE_API_KEY`: *(Your Firebase Web configuration API key)*
-   - `VITE_FIREBASE_AUTH_DOMAIN`: *(Your Firebase Web configuration Auth domain)*
-   - `VITE_FIREBASE_PROJECT_ID`: *(Your Firebase Web configuration Project ID)*
-   - `VITE_FIREBASE_STORAGE_BUCKET`: *(Your Firebase Web configuration Storage bucket)*
-   - `VITE_FIREBASE_MESSAGING_SENDER_ID`: *(Your Firebase Web configuration Messaging sender ID)*
-   - `VITE_FIREBASE_APP_ID`: *(Your Firebase Web configuration App ID)*
-5. **Deploy**: Click **Deploy**. Vercel will build the frontend assets. Once complete, copy your Vercel URL and add it to Render's `FRONTEND_URL` environment variable to ensure seamless CORS handshake.
-
----
 
 ---
 
